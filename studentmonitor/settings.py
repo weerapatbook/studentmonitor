@@ -77,8 +77,14 @@ WSGI_APPLICATION = 'studentmonitor.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #    'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME' :'d5v48uuoocc19q',
+'USER' :'ksesffeqvrczfh',
+'PASSWORD' :'86167154e74ca33534df6ca6f96a491def23a6c479ddbfec46f26385d8ce6d11',
+'HOST' :'ec2-174-129-226-234.compute-1.amazonaws.com',
+'PORT' :'5432',
     }
 }
 
