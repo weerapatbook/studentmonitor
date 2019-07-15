@@ -1,0 +1,96 @@
+{% extends "layout/base.html" %}
+
+
+{% block content %}
+<h1 class="mt-4">รายงาน : รายงาน จำนวนนักเรียนแยกชาย หญิง ตามประเภทการมา/ไม่มาเรียน ตามช่วงเวลา</h1>
+<form method="post">
+         {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputstartdate">วันที่ เริ่ม</label>
+                <div class="input-group date" data-provide="datepicker" id='startdatepicker'>
+                    <input id="inputstartdate" name="start_teach_time" value="{{start_teach_time}}" type="text" class="form-control" placeholder="" required>
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-th"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="inputstopdate">วันที่ สิ้นสุด</label>
+                <div class="input-group date" data-provide="datepicker" id='stopdatepicker'>
+                    <input id="inputstopdate" name="stop_teach_time" value="{{stop_teach_time}}" type="text" class="form-control" placeholder="" required>
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-th"></span>
+                    </div>
+                </div>
+
+            </div>
+      </div>
+
+         <div class="form-group">
+
+         <a href="{% url 'webs:report_index' %}" class="btn btn-danger">Reset</a>
+            <button type="submit" class="btn btn-primary">แสดง</button>
+         </div>
+</form>
+
+<canvas id="myChart" width="739" height="369" class="chartjs-render-monitor" style="display: block; height: 246px; width: 493px;"></canvas>
+
+{% endblock %}
+
+
+{% block script_body %}
+<script type="text/javascript">
+    $(function () {
+        $('#startdatepicker').datepicker({
+            format: "dd/mm/yyyy",
+            language: 'th',
+
+        });
+        $('#stopdatepicker').datepicker({
+            format: "dd/mm/yyyy",
+            language: 'th',
+
+        });
+
+    });
+
+    var data_labels= [{% for o in show_absent %} '{{o}}', {% endfor %}];
+    var data_male=   [{% for o in data_male %} '{{o}}', {% endfor %}];
+    var data_fremale=   [{% for o in data_fremale %} '{{o}}', {% endfor %}];
+
+    var ctx = document.getElementById("myChart").getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: data_labels,
+        datasets: [
+        {
+            label: 'Male',
+            data: data_male,
+            backgroundColor: "#3e95cd",
+            borderWidth: 1
+        },
+        {
+            label: 'Fremale',
+            data: data_fremale,
+           backgroundColor: "#8e5ea2",
+            borderWidth: 1
+        }
+        ]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
+});
+</script>
+
+{% endblock %}

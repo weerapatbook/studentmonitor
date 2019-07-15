@@ -1,0 +1,120 @@
+{% extends "layout/base.html" %}
+
+
+{% block content %}
+<h1 class="mt-4">Student</h1>
+    <form method="post">
+         {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group col-md-5">
+              <label for="inputdatepicker">วันที่</label>
+                <div class="input-group date" data-provide="datepicker" id='datetimepicker1'>
+                    <input id="inputdatepicker" name="teach_time" value="{{teach_time}}" type="text" class="form-control" placeholder="" required>
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-th"></span>
+                    </div>
+                </div>
+
+            </div>
+            <div class="form-group col-md-2">
+              <label for="inputTime">คาบที่</label>
+              <input type="text" class="form-control" id="inputTime"  name="time"  value="{{time}}"  placeholder="" required>
+            </div>
+            <div class="form-group col-md-5">
+              <label for="inputSubject">วิชา</label>
+                <select  id="inputSubject" name="subject"  class="form-control" required>
+                    <option value="">Choose...</option>
+                      {% for t in subjects %}
+                         <option value="{{t.id}}" {%if t.id|slugify  == subject%} selected {% endif %}>{{t.name}} </option>
+                      {% endfor %}
+                </select>
+
+            </div>
+      </div>
+      <div class="form-group">
+        <label for="inputTeacher">ครูผู้สอน</label>
+          <select  id="inputTeacher" name="teacher"  class="form-control" required>
+            <option  value="">Choose...</option>
+              {% for t in teachers %}
+                 <option value="{{t.id}}" {%if t.id|slugify  == teacher%} selected {% endif %}>{{t.name}}</option>
+              {% endfor %}
+          </select>
+
+      </div>
+      <div class="form-group">
+        <label for="inputRoom">ชั้นเรียน</label>
+          <select  id="inputRoom" name="room"  class="form-control" required>
+                    <option value="">Choose...</option>
+                      {% for t in rooms %}
+                         <option value="{{t.id}}" {%if t.id|slugify  == room%} selected {% endif %}>{{t.name}}</option>
+                      {% endfor %}
+                </select>
+
+      </div>
+         <div class="form-group">
+
+         <a href="{% url  'webs:index' %}" class="btn btn-danger">Reset</a>
+            <button type="submit" class="btn btn-primary">แสดง</button>
+         </div>
+</form>
+
+<br/>
+{% if student_inroom_absent   %}
+<div class="row">
+    <div class="col-md-12">
+        <form method="post" action="{%url 'webs:save_absent' %}">
+            {% csrf_token %}
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">ชื่อ - สกุล</th>
+                  <th scope="col">รหัส</th>
+                  <th scope="col">มา/ไม่มา เรียน</th>
+                </tr>
+              </thead>
+              <tbody>
+               {% for room in student_inroom_absent %}
+                <tr>
+                  <th scope="row">{{forloop.counter}}</th>
+                  <td>{{room.student}}</td>
+                  <td>{{room.student.code}}</td>
+                  <td>
+                      <input type="hidden" name="student_inroom" value="{{room.id}}"/>
+                      <select name="absent"  class="form-control">
+                        <option>Choose...</option>
+                          {% for t in absents %}
+                             <option value="{{t.id}}" {%if t.id  == room.absent.id%} selected {% endif %}>{{t.name}}</option>
+                          {% endfor %}
+                    </select>
+                  </td>
+                </tr>
+               {% endfor %}
+
+              </tbody>
+            </table>
+
+            <div class="form-group"  style="text-align: right;">
+                <button type="submit" class="btn btn-success">บันทึก</button>
+             </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+
+{% block script_body %}
+<script type="text/javascript">
+    $(function () {
+        $('#datetimepicker1').datepicker({
+            format: "dd/mm/yyyy",
+            language: 'th',
+
+        });
+
+    });
+</script>
+
+
+{% endblock %}
