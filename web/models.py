@@ -107,6 +107,7 @@ class TeacherInRoom(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE,blank=True, null=True )
 
 
+
     def __str__(self):
         return r"%s %s (%s)" % (self.teach_date, self.subject, self.teacher)
 
