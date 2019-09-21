@@ -1,0 +1,148 @@
+{% extends "layout/base.html" %}
+
+
+{% block content %}
+<h1 class="mt-4">รายงาน : รายงาน จำนวนนักเรียนแยกชาย หญิง ตามประเภทการมา/ไม่มาเรียน ตามช่วงเวลา</h1>
+<form method="post">
+         {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputroom">ชั้นเรียน</label>
+                <select class="form-control" id="inputroom"  name="room_select" >
+                    {% for o in room %}
+                         <option value="{{o.id}}"  {%if o.id|slugify  == room_select|slugify%} selected {% endif %}> {{ o.name  }} </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="inputsubject">วิชา</label>
+                <select class="form-control" id="inputsubject"  name="subject_select" >
+                    {% for o in subject %}
+                         <option value="{{o.id}}"  {%if o.id|slugify  == subject_select|slugify%} selected {% endif %}>{{ o.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+      </div>
+
+        <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputstartdate">วันที่ เริ่ม</label>
+                <div class="input-group date" data-provide="datepicker" id='startdatepicker'>
+                    <input id="inputstartdate" name="start_teach_time" value="{{start_teach_time}}" type="text" class="form-control" placeholder="" required>
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-th"></span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="inputstopdate">วันที่ สิ้นสุด</label>
+                <div class="input-group date" data-provide="datepicker" id='stopdatepicker'>
+                    <input id="inputstopdate" name="stop_teach_time" value="{{stop_teach_time}}" type="text" class="form-control" placeholder="" required>
+                    <div class="input-group-addon">
+                        <span class="glyphicon glyphicon-th"></span>
+                    </div>
+                </div>
+
+            </div>
+      </div>
+
+         <div class="form-group">
+
+         <a href="{% url 'webs:report_index' %}" class="btn btn-danger">Reset</a>
+            <button type="submit" class="btn btn-primary">แสดง</button>
+         </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">name</th>
+            {% for mainabs in absent %}
+                <th scope="col">{{mainabs.name}}</th>
+             {% endfor %}
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for o in data_student_in_room %}
+             <tr>
+                 <th scope="row">{{forloop.counter}}</th>
+                 <td>{{ o.stu_name}}</td>
+                 {% for mainabs in absent %}
+                    {% for stu_abs in o.abs %}
+                        {% if mainabs.id == stu_abs.abs_id%}
+                            <td>{{ stu_abs.count }}</td>
+                        {% endif %}
+                    {% endfor %}
+                 {% endfor %}
+
+
+            </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+          <th scope="col">#</th>
+            <th scope="col">total</th>
+            {% for mainabs in absent %}
+               {% for key, value in total_abs.items %}
+                    {% if mainabs.id == key%}
+                       <th scope="col">{{ value }}</th>
+                    {% endif %}
+                {% endfor %}
+             {% endfor %}
+
+
+
+        </tr>
+    </tfoot>
+</table>
+
+
+
+
+<canvas id="myChart" width="739" height="369" class="chartjs-render-monitor" style="display: block; height: 246px; width: 493px;"></canvas>
+
+{% endblock %}
+
+
+{% block script_body %}
+<script type="text/javascript">
+    $(function () {
+        $('#startdatepicker').datepicker({
+            format: "dd/mm/yyyy",
+            language: 'th',
+
+        });
+        $('#stopdatepicker').datepicker({
+            format: "dd/mm/yyyy",
+            language: 'th',
+
+        });
+
+    });
+
+    var data_total= [{%  for key, value in total_abs.items %} '{{value}}', {% endfor %}];
+    var data_labels= [{% for o in absent %} '{{o.name}}', {% endfor %}];
+
+    var ctx = document.getElementById("myChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'pie',
+        data:  {
+                datasets: [{
+                    data: data_total,
+                     backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                }],
+
+                labels: data_labels
+            }
+
+    });
+</script>
+
+{% endblock %}

@@ -37,7 +37,11 @@
         <a href="{% url  'webs:index' %}" class="list-group-item list-group-item-action bg-light">Student</a>
         <a href="/admin/" class="list-group-item list-group-item-action bg-light">ข้อมุล</a>
         <a href="{% url 'webs:report_index' %}" class="list-group-item list-group-item-action bg-light">รายงาน</a>
+        <div class="list-group list-group-flush">
+            <a href="{% url  'webs:report_table' %}" class="list-group-item list-group-item-action bg-light">report_table</a>
+        </div>
       </div>
+
     </div>
     <!-- /#sidebar-wrapper -->
 

@@ -196,3 +196,111 @@ def report_index(request):
                 'data_fremale': data_fremale
                 }
     return render(request, 'report_index.html', context)
+
+
+def report_table(request):
+    '''
+    รายงาน จำนวนนักเรียนแยกชาย หญิง ตามประเภทการมา/ไม่มาเรียน ตามช่วงเวลา
+    :param request:
+    :return:
+    '''
+
+    # กำหมดค่าเวลา เริ่ม และ สิ้นสุดเป็นวันนี้ (ใช้กรณีตั้งต้น)
+    start_teach_time = datetime.now().strftime("%d/%m/%Y")
+    stop_teach_time = datetime.now().strftime("%d/%m/%Y")
+    show_absent = []
+    data_male = []
+    data_fremale = []
+    data_student_in_room = []
+    room_select= ''
+    subject_select=''
+    # หาประเภทของการมา/ไม่มา เรียน ทั้งหมด
+    absent = Absent.objects.all()
+    room = Room.objects.all()
+    subject = Subject.objects.all()
+
+    # นำเฉพาะชื่อมาแสดงในรายงาน
+    for abs in absent:
+        show_absent.append(abs.name)
+
+
+
+
+    # สำหรับการกด แสดงรายงาน
+    if request.method == 'POST':
+        print(request.POST)
+
+        # รับวันที่เริ่มต้น
+        start_teach_time = request.POST.get('start_teach_time')
+        # รับวันที่สิ้นสุด
+        stop_teach_time = request.POST.get('stop_teach_time')
+
+        room_select = request.POST.get('room_select')
+        subject_select = request.POST.get('subject_select')
+        print("room_select : %s" %(room_select))
+        print("subject_select : %s" % (subject_select))
+        # กรณีไม่ได้เลือกวันที่เริ่มต้นไว้ ให้กำหมดค่าเริ่ต้นเป็นวันนี้
+        if len(start_teach_time) == 0:
+            start_teach_time = datetime.now().strftime("%d/%m/%Y")
+
+        # กรณีไม่ได้เลือกวันที่สิ้นสุดไว้ ให้กำหมดค่าเริ่ต้นเป็นวันนี้
+        if len(stop_teach_time) == 0:
+            stop_teach_time = datetime.now().strftime("%d/%m/%Y")
+
+        # แปลงวันที่ในรูปข้อความ ให้อยู่ในรูป Datetime
+        start_time = datetime.strptime(start_teach_time + ' 00:00:00', '%d/%m/%Y %H:%M:%S')
+        stop_time = datetime.strptime(stop_teach_time + ' 23:59:59', '%d/%m/%Y %H:%M:%S')
+
+        # หานักเรียนที่อยู่ในห้องที่เลือก
+        students = StudentInRoom.objects.filter(room = room_select).all()
+
+        total_abs = {}
+        for stu in students:
+            tmpstudent = stu.student
+
+            student_abs = []
+            for abs in absent:
+                abs_count = StudentAbsent.objects.filter(teacherinroom__teach_date__range=(start_time, stop_time),
+                                                    teacherinroom__subject=subject_select,
+                                                    teacherinroom__room=room_select,
+                                                    student = tmpstudent,
+                                                    absent=abs).count()
+
+                count_abs = total_abs.get(abs.id,None)
+                if count_abs == None:
+                    count_abs = 0
+
+                count_abs = count_abs + abs_count
+                total_abs[abs.id] = count_abs
+
+                student_abs.append({'abs_id' : abs.id, 'abs_name': abs.name, 'count': abs_count})
+
+
+
+            data_student_in_room.append( {'stu_id' : tmpstudent.id, 'stu_name': tmpstudent, 'abs' : student_abs})
+
+
+        print ('%s' %(total_abs))
+
+        # ทำการหา จำนวนนักเรียน ชาย หญิง จาก รูปแบบการ มา / ไม่มาเรียน และวันที่
+        #for abs in absent:
+        #    male = StudentAbsent.objects.filter(teacherinroom__teach_date__range=(start_time, stop_time), \
+        #                                        teacherinroom__subject=subject_select, \
+        #                                        teacherinroom__room=room_select, \
+        #                                        absent = abs ).count()
+        #    print("%s : %s " % (abs, male))
+        #    data_male.append(male)
+        #    data_fremale.append(0)
+        data_male.append(0)
+        data_fremale.append(0)
+    # เตรียมข้อมูลเพื่อนำไปแสดงบนหน้า html
+    context = { 'start_teach_time': start_teach_time,
+                'stop_teach_time': stop_teach_time,
+                'show_absent': show_absent,
+                'data_male': data_male,
+                'data_fremale': data_fremale,
+                'room' : room , 'subject': subject, 'absent':absent,
+                'room_select': room_select, 'subject_select': subject_select,
+                'data_student_in_room' : data_student_in_room,'total_abs':total_abs
+                }
+    return render(request, 'report_table.html', context)
