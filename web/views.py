@@ -1,11 +1,43 @@
 from datetime import datetime
 from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+
 from django.db.models import Count
 from django.http import HttpResponse
 from .models import Teacher, Subject, Room, StudentInRoom,Absent, TeacherInRoom, StudentAbsent, Student
 from .linenotify import sendMessage
 # Create your views here.
 
+def login_user(request):
+    #context = RequestContext(request)
+    logout(request)
+    context = {}
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        print("User : Password = %s : %s " % (username, password))
+        context['username'] = username
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return HttpResponseRedirect('/')
+            else:
+                context['message'] = 'username ยังไม่ได้ active กรุณาติดต่อ admin'
+
+        else:
+            context['message'] = 'username หรือ password ผิด ลองใหม่อีกครั้ง'
+
+
+    return render(request, 'login.html', context)
+
+def logout_user(request):
+    logout(request)
+    return HttpResponseRedirect('/login/')
+
+@login_required(login_url='/login/')
 def index(request):
     '''
     สำหรับการบันทึก กิจกรรม การเข้าเรียนของนักเรียน
@@ -141,6 +173,7 @@ def savestudentabsent(request):
 
     return render(request, 'save.html', context)
 
+@login_required(login_url='/login/')
 def report_index(request):
     '''
     รายงาน จำนวนนักเรียนแยกชาย หญิง ตามประเภทการมา/ไม่มาเรียน ตามช่วงเวลา
@@ -197,7 +230,7 @@ def report_index(request):
                 }
     return render(request, 'report_index.html', context)
 
-
+@login_required(login_url='/login/')
 def report_table(request):
     '''
     รายงาน จำนวนนักเรียนแยกชาย หญิง ตามประเภทการมา/ไม่มาเรียน ตามช่วงเวลา
