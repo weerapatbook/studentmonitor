@@ -208,10 +208,9 @@ def report_table(request):
     # กำหมดค่าเวลา เริ่ม และ สิ้นสุดเป็นวันนี้ (ใช้กรณีตั้งต้น)
     start_teach_time = datetime.now().strftime("%d/%m/%Y")
     stop_teach_time = datetime.now().strftime("%d/%m/%Y")
-    show_absent = []
-    data_male = []
-    data_fremale = []
+
     data_student_in_room = []
+    total_abs = {}
     room_select= ''
     subject_select=''
     # หาประเภทของการมา/ไม่มา เรียน ทั้งหมด
@@ -219,9 +218,7 @@ def report_table(request):
     room = Room.objects.all()
     subject = Subject.objects.all()
 
-    # นำเฉพาะชื่อมาแสดงในรายงาน
-    for abs in absent:
-        show_absent.append(abs.name)
+
 
 
 
@@ -254,7 +251,7 @@ def report_table(request):
         # หานักเรียนที่อยู่ในห้องที่เลือก
         students = StudentInRoom.objects.filter(room = room_select).all()
 
-        total_abs = {}
+
         for stu in students:
             tmpstudent = stu.student
 
@@ -282,23 +279,11 @@ def report_table(request):
 
         print ('%s' %(total_abs))
 
-        # ทำการหา จำนวนนักเรียน ชาย หญิง จาก รูปแบบการ มา / ไม่มาเรียน และวันที่
-        #for abs in absent:
-        #    male = StudentAbsent.objects.filter(teacherinroom__teach_date__range=(start_time, stop_time), \
-        #                                        teacherinroom__subject=subject_select, \
-        #                                        teacherinroom__room=room_select, \
-        #                                        absent = abs ).count()
-        #    print("%s : %s " % (abs, male))
-        #    data_male.append(male)
-        #    data_fremale.append(0)
-        data_male.append(0)
-        data_fremale.append(0)
+
     # เตรียมข้อมูลเพื่อนำไปแสดงบนหน้า html
     context = { 'start_teach_time': start_teach_time,
                 'stop_teach_time': stop_teach_time,
-                'show_absent': show_absent,
-                'data_male': data_male,
-                'data_fremale': data_fremale,
+
                 'room' : room , 'subject': subject, 'absent':absent,
                 'room_select': room_select, 'subject_select': subject_select,
                 'data_student_in_room' : data_student_in_room,'total_abs':total_abs

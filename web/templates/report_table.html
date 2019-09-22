@@ -1,8 +1,12 @@
 {% extends "layout/base.html" %}
-
+{% load static %}
+{% block script_header %}
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/simple-loading.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
-<h1 class="mt-4">รายงาน : รายงาน จำนวนนักเรียนแยกชาย หญิง ตามประเภทการมา/ไม่มาเรียน ตามช่วงเวลา</h1>
+<h1 class="mt-4">รายงาน : รายชื่อนักเรียนแยกตามจำนวนการขาด ลา มาสาย</h1>
 <form method="post">
          {% csrf_token %}
         <div class="form-row">
@@ -53,7 +57,7 @@
          <div class="form-group">
 
          <a href="{% url 'webs:report_index' %}" class="btn btn-danger">Reset</a>
-            <button type="submit" class="btn btn-primary">แสดง</button>
+            <button id="show_query" type="submit" class="btn btn-primary">แสดง</button>
          </div>
 </form>
 
@@ -88,7 +92,7 @@
     <tfoot>
         <tr>
           <th scope="col">#</th>
-            <th scope="col">total</th>
+            <th scope="col">รวม (ครั้ง)</th>
             {% for mainabs in absent %}
                {% for key, value in total_abs.items %}
                     {% if mainabs.id == key%}
@@ -104,15 +108,30 @@
 </table>
 
 
-
-
 <canvas id="myChart" width="739" height="369" class="chartjs-render-monitor" style="display: block; height: 246px; width: 493px;"></canvas>
+
+
+<div class="bg_load"></div>
+<div class="wrapper">
+    <div class="inner">
+        <span>L</span>
+        <span>o</span>
+        <span>a</span>
+        <span>d</span>
+        <span>i</span>
+        <span>n</span>
+        <span>g</span>
+    </div>
+</div>
 
 {% endblock %}
 
 
 {% block script_body %}
+<script src="{% static 'vendor/chart.js/chartjs-plugin-datalabels.min.js' %}"></script>
 <script type="text/javascript">
+
+
     $(function () {
         $('#startdatepicker').datepicker({
             format: "dd/mm/yyyy",
@@ -127,22 +146,58 @@
 
     });
 
-    var data_total= [{%  for key, value in total_abs.items %} '{{value}}', {% endfor %}];
+    var data_total= [{%  for key, value in total_abs.items %} {{value}}, {% endfor %}];
     var data_labels= [{% for o in absent %} '{{o.name}}', {% endfor %}];
 
     var ctx = document.getElementById("myChart").getContext('2d');
+
+
     var myChart = new Chart(ctx, {
         type: 'pie',
         data:  {
                 datasets: [{
                     data: data_total,
-                     backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                     backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850","#e9c4b9","#a47890"],
                 }],
-
                 labels: data_labels
-            }
+            },
+
+        options: {
+          legend: { display: true },
+          title: {
+            display: true,
+            text: 'รายงานจำนวนครั้ง ขาด ลา มา สาย'
+          },
+          plugins: {
+             datalabels: {
+               formatter: (value, ctx) => {
+
+                 let datasets = ctx.chart.data.datasets;
+
+                 if (datasets.indexOf(ctx.dataset) === datasets.length - 1) {
+                   let sum = datasets[0].data.reduce((a, b) => a + b, 0);
+                   let percentage = Math.round((value / sum) * 100) + '%';
+                   return percentage;
+                 } else {
+                   return percentage;
+                 }
+               },
+               color: '#fff',
+             }
+           }
+        }
 
     });
+
+    /**show loading*/
+    $('#show_query').click(function () {
+        $(".bg_load").fadeIn("slow");
+        $(".wrapper").fadeIn("slow");
+    });
+
+    /**hiding loading*/
+    $(".bg_load").fadeOut("slow");
+    $(".wrapper").fadeOut("slow");
 </script>
 
 {% endblock %}
