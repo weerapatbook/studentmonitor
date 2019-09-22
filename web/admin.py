@@ -1,5 +1,5 @@
 from django.contrib import admin
-from  web.models import Student, Room, StudentInRoom, Teacher, Absent, Subject, TeacherInRoom, StudentAbsent
+from  web.models import Student, Room, StudentInRoom, Teacher, Absent, Subject, TeacherInRoom, StudentAbsent, UserTeacher
 # Register your models here.
 
 admin.site.register(Student)
@@ -10,3 +10,4 @@ admin.site.register(Absent)
 admin.site.register(Subject)
 admin.site.register(TeacherInRoom)
 admin.site.register(StudentAbsent)
+admin.site.register(UserTeacher)

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from enum import Enum
 # Create your models here.
 
@@ -124,3 +125,13 @@ class StudentAbsent(models.Model):
 
     def __str__(self):
         return r"%s %s" % (self.student, self.absent)
+
+class UserTeacher(models.Model):
+    '''
+    เก็บ user เชื่อมกับ ตาราง Teacher
+    '''
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return r"%s %s" % (self.user.username, self.teacher)
