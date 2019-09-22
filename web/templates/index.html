@@ -34,7 +34,9 @@
       <div class="form-group">
         <label for="inputTeacher">ครูผู้สอน</label>
           <select  id="inputTeacher" name="teacher"  class="form-control" required>
-            <option  value="">Choose...</option>
+              {% if teachers.count > 0 %}
+                <option value="">Choose...</option>
+              {% endif %}
               {% for t in teachers %}
                  <option value="{{t.id}}" {%if t.id|slugify  == teacher%} selected {% endif %}>{{t.name}}</option>
               {% endfor %}
@@ -62,7 +64,7 @@
 {% if student_inroom_absent   %}
 <div class="row">
     <div class="col-md-12">
-        <form method="post" action="{%url 'webs:save_absent' %}">
+        <form method="post" id="save_absent" name="save_absent" action="{%url 'webs:save_absent' %}" novalidate="novalidate">
             {% csrf_token %}
             <table class="table table-striped">
               <thead>
@@ -81,8 +83,8 @@
                   <td>{{room.student.code}}</td>
                   <td>
                       <input type="hidden" name="student_inroom" value="{{room.id}}"/>
-                      <select name="absent"  class="form-control">
-                        <option>Choose...</option>
+                      <select id="absent" name="absent"  class="form-control required" required>
+                        <option value="0">Choose...</option>
                           {% for t in absents %}
                              <option value="{{t.id}}" {%if t.id  == room.absent.id%} selected {% endif %}>{{t.name}}</option>
                           {% endfor %}
@@ -108,6 +110,9 @@
 
 
 {% block script_body %}
+
+<script src="{% static 'vendor/jquery-validation/jquery.validate.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-validation//additional-methods.min.js' %}"></script>
 <script type="text/javascript">
     $(function () {
         $('#datetimepicker1').datepicker({
@@ -118,7 +123,29 @@
 
     });
 
+    $( "#save_absent" ).validate({
+      rules: {
+        "absent[]": "allRequired"
+      },
+      messages: {
+        absent: { valueNotEquals: "Please select an item!" }
+      },
+      submitHandler: function() {
 
+			var result = true;
+			var absent_selects = $("[name='absent']");
+			for(var i =0 ; i < absent_selects.length ; i++){
+			    var ab_select = absent_selects[i];
+			    if (ab_select.value == '0'){
+                    ab_select.focus();
+                    result = false;
+			        break;
+			    }
+			}
+
+			return result;
+		}
+    });
 </script>
 
 

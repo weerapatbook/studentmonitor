@@ -6,7 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 
 from django.db.models import Count
 from django.http import HttpResponse
-from .models import Teacher, Subject, Room, StudentInRoom,Absent, TeacherInRoom, StudentAbsent, Student
+from .models import Teacher, Subject, Room, StudentInRoom,Absent, TeacherInRoom, StudentAbsent, Student,UserTeacher
 from .linenotify import sendMessage
 # Create your views here.
 
@@ -44,9 +44,16 @@ def index(request):
     :param request:
     :return:
     '''
+    teachers = []
+    userTeacher=UserTeacher.objects.filter(user=request.user).all()
+    if userTeacher:
+        for ut in userTeacher:
+           teachers.append(ut.teacher)
+    else:
+        #ค้นหารายชื่อของครูมาทั้งหมด
+        teachers = Teacher.objects.all()
 
-    #ค้นหารายชื่อของครูมาทั้งหมด
-    teachers = Teacher.objects.all()
+
     # ค้นหารายชื่อของวิชาที่สอนมาทั้งหมด
     subjects = Subject.objects.all()
     # ค้นหารายชื่อของห้องนักเรียนมาทั้งหมด
@@ -133,7 +140,7 @@ def index(request):
 
     return render(request, 'index.html', context)
 
-
+@login_required(login_url='/login/')
 def savestudentabsent(request):
     '''
     บันทึหข้อมูลนักเรียนที่มา หรือไม่มาตามที่ครูได้เลือกไวเ
@@ -141,17 +148,16 @@ def savestudentabsent(request):
     :return:
     '''
     if request.method == 'POST':
-        print(request.POST)
         student_inroom = request.POST.getlist('student_inroom')
         absent = request.POST.getlist('absent')
-
         #ตรวจสอบว่ามีการบันทึกไว้หรือไว้ โดยตรวจสอบกับ promary key ข้องตารางถ้ามีให้ทำการ update
         #ในเงื่อนไขนี้จะต้องมีข้อมูลอยู่แล้ว เพราะได้มีการเพิ่ม (Insert) ข้อมุลไว้ก่อนหน้านี้
         for i in range(0, len(absent)):
 
             studentAbsent = StudentAbsent.objects.get(pk=student_inroom[i])
-            std_absent = Absent.objects.get(pk=absent[i])
-            if studentAbsent:
+            std_absent = Absent.objects.filter(id = absent[i]).first()
+
+            if studentAbsent and std_absent:
                 #ทำการบันทึก การมา/ไม่มา ของนักเรียน
                 studentAbsent.absent = std_absent
                 studentAbsent.save()
