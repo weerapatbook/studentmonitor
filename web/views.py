@@ -8,6 +8,7 @@ from django.db.models import Count
 from django.http import HttpResponse
 from .models import Teacher, Subject, Room, StudentInRoom,Absent, TeacherInRoom, StudentAbsent, Student,UserTeacher
 from .linenotify import sendMessage
+from web.util.dateutil import  DateUtil
 # Create your views here.
 
 def login_user(request):
@@ -340,7 +341,65 @@ def report_table(request):
 
 
 def report_student(request):
+    page = 'report_student.html'
+    stdnumber = ""
+    studentCode = None
+    room = Room()
+    student_abs = []
+    if request.method == 'POST':
+        #page = "report_student_detail.html"
+        print(request.POST)
+
+        #รับรหัสนักเรียน
+        stdnumber = request.POST.get('stdnumber')
+        print("Stdnumber %s" %(stdnumber))
+
+
+        studentCode = Student.objects.filter(code = stdnumber).first()
+        stdInRoom = StudentInRoom.objects.filter(student = studentCode).first()
+        if stdInRoom :
+            room = stdInRoom.room
+
+        from django.db import connection
+        with connection.cursor() as cursor:
+            cursor.execute("""SELECT 
+web_subject.name,
+web_teacher."name",
+web_teacherinroom.teach_date,
+web_teacherinroom."time", 
+web_absent."name"
+from web_student 
+INNER JOIN web_studentabsent on web_student.id = web_studentabsent.student_id
+INNER JOIN web_teacherinroom on web_teacherinroom.id = web_studentabsent.teacherinroom_id
+INNER JOIN web_subject on web_subject.id = web_teacherinroom.subject_id
+INNER JOIN web_teacher on web_teacher.id = web_teacherinroom.teacher_id
+INNER JOIN web_absent on web_absent.id = web_studentabsent.absent_id
+WHERE web_student.code   = %s and web_teacherinroom.room_id = %s 
+ORDER BY
+	web_teacherinroom.teach_date,
+	web_teacherinroom.time
+""", [stdnumber, room.id])
+            all_student = cursor.fetchall()
+
+            for all in all_student:
+                print(all[0])
+                print(all[1])
+                print(all[2])
+                print(all[3])
+                print(all[4])
+                student_abs.append({"subject" : all[0],
+                                    "teacher" : all[1],
+                                    "teach_date" : DateUtil.convertDateToString(all[2]),
+                                    "teach_time": all[3],
+                                    "status" : all[4]
+                                    })
+
+
     context = {
-        'page': 'report'
+        'page': 'report',
+        'stdnumber' : stdnumber,
+        'studentCode' : studentCode,
+        'room' : room,
+        'student_abs': student_abs
     }
-    return render(request, 'report_student.html', context)
+    return render(request, page, context)
