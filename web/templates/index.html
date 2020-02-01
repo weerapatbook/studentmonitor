@@ -66,6 +66,7 @@
     <div class="col-md-12">
         <form method="post" id="save_absent" name="save_absent" action="{%url 'webs:save_absent' %}" novalidate="novalidate">
             {% csrf_token %}
+            <input type="hidden" name="room" value="{{room}}"/>
             <table class="table table-striped">
               <thead>
                 <tr>

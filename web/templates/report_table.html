@@ -2,11 +2,12 @@
 {% load static %}
 {% block script_header %}
     <!-- Custom styles for this template -->
-    <link href="{% static 'css/simple-loading.css' %}" rel="stylesheet">
+   <!--<link href="{% static 'css/simple-loading.css' %}" rel="stylesheet"> -->
+
 {% endblock %}
 
 {% block content %}
-<h1 class="mt-4">รายงาน : รายชื่อนักเรียนแยกตามจำนวนการขาด ลา มาสาย</h1>
+<h1 class="mt-4">รายงานที่ 2 : รายชื่อนักเรียนแยกตามจำนวนการขาด ลา มาสาย</h1>
 <form method="post">
          {% csrf_token %}
         <div class="form-row">
@@ -56,8 +57,9 @@
 
          <div class="form-group">
 
-         <a href="{% url 'webs:report_index' %}" class="btn btn-danger">Reset</a>
+         <a id="reset_query" href="{% url 'webs:report_index' %}" class="btn btn-danger">Reset</a>
             <button id="show_query" type="submit" class="btn btn-primary">แสดง</button>
+             <span id="please_wait" class="hide">กรุณารอสักครู่</span>
          </div>
 </form>
 
@@ -111,6 +113,7 @@
 <canvas id="myChart" width="739" height="369" class="chartjs-render-monitor" style="display: block; height: 246px; width: 493px;"></canvas>
 
 
+<!--
 <div class="bg_load"></div>
 <div class="wrapper">
     <div class="inner">
@@ -123,6 +126,7 @@
         <span>g</span>
     </div>
 </div>
+-->
 
 {% endblock %}
 
@@ -188,16 +192,27 @@
         }
 
     });
+       $(document).ready(function(){
+        $("#please_wait").hide();
+        $( "#show_query" ).click(function() {
+          $( "#show_query" ).hide();
+          $( "#reset_query" ).hide();
+           $("#please_wait").show();
+        });
+
+    });
 
     /**show loading*/
-    $('#show_query').click(function () {
+   /* $('#show_query').click(function () {
         $(".bg_load").fadeIn("slow");
         $(".wrapper").fadeIn("slow");
     });
+    */
 
     /**hiding loading*/
-    $(".bg_load").fadeOut("slow");
+    /*$(".bg_load").fadeOut("slow");
     $(".wrapper").fadeOut("slow");
+    */
 </script>
 
 {% endblock %}

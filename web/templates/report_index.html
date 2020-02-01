@@ -3,10 +3,10 @@
 {% load static %}
 {% block script_header %}
     <!-- Custom styles for this template -->
-    <link href="{% static 'css/simple-loading.css' %}" rel="stylesheet">
+    <!--<link href="{% static 'css/simple-loading.css' %}" rel="stylesheet">-->
 {% endblock %}
 {% block content %}
-<h1 class="mt-4">รายงาน : รายงาน จำนวนนักเรียนแยกชาย หญิง ตามประเภทการมา/ไม่มาเรียน ตามช่วงเวลา</h1>
+<h1 class="mt-4">รายงานที่ 1 : รายงาน จำนวนนักเรียนแยกชาย หญิง ตามประเภทการมา/ไม่มาเรียน ตามช่วงเวลา</h1>
 <form method="post">
          {% csrf_token %}
         <div class="form-row">
@@ -35,14 +35,15 @@
 
          <div class="form-group">
 
-         <a href="{% url 'webs:report_index' %}" class="btn btn-danger">Reset</a>
+         <a id="reset_query" href="{% url 'webs:report_index' %}" class="btn btn-danger">Reset</a>
             <button id="show_query" type="submit" class="btn btn-primary">แสดง</button>
+             <span id="please_wait" class="hide">กรุณารอสักครู่</span>
          </div>
 </form>
 
 <canvas id="myChart" width="739" height="369" class="chartjs-render-monitor" style="display: block; height: 246px; width: 493px;"></canvas>
 
-
+<!--
 <div class="bg_load"></div>
 <div class="wrapper">
     <div class="inner">
@@ -54,7 +55,7 @@
         <span>n</span>
         <span>g</span>
     </div>
-</div>
+</div>-->
 
 {% endblock %}
 
@@ -80,45 +81,46 @@
     var data_fremale=   [{% for o in data_fremale %} '{{o}}', {% endfor %}];
 
     var ctx = document.getElementById("myChart").getContext('2d');
-var myChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: data_labels,
-        datasets: [
-        {
-            label: 'Male',
-            data: data_male,
-            backgroundColor: "#3e95cd",
-            borderWidth: 1
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data_labels,
+            datasets: [
+            {
+                label: 'Male',
+                data: data_male,
+                backgroundColor: "#3e95cd",
+                borderWidth: 1
+            },
+            {
+                label: 'Fremale',
+                data: data_fremale,
+               backgroundColor: "#8e5ea2",
+                borderWidth: 1
+            }
+            ]
         },
-        {
-            label: 'Fremale',
-            data: data_fremale,
-           backgroundColor: "#8e5ea2",
-            borderWidth: 1
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
         }
-        ]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero:true
-                }
-            }]
-        }
-    }
-});
+    });
+    $(document).ready(function(){
+        $("#please_wait").hide();
+        $( "#show_query" ).click(function() {
+          $( "#show_query" ).hide();
+          $( "#reset_query" ).hide();
+           $("#please_wait").show();
+        });
 
-    /**show loading*/
-    $('#show_query').click(function () {
-        $(".bg_load").fadeIn("slow");
-        $(".wrapper").fadeIn("slow");
     });
 
-    /**hiding loading*/
-    $(".bg_load").fadeOut("slow");
-    $(".wrapper").fadeOut("slow");
+
 </script>
 
 {% endblock %}

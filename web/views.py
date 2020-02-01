@@ -57,7 +57,7 @@ def index(request):
     # ค้นหารายชื่อของวิชาที่สอนมาทั้งหมด
     subjects = Subject.objects.all()
     # ค้นหารายชื่อของห้องนักเรียนมาทั้งหมด
-    rooms = Room.objects.all()
+    rooms = Room.objects.order_by('classroom','room').all()
     # ค้นหารายการ มา/ไม่มาเรียน มาทั้งหมด
     absents = Absent.objects.all()
 
@@ -135,7 +135,8 @@ def index(request):
                'subject': subject,
                'teacher': teacher,
                'room': room,
-               'student_inroom_absent':student_inroom_absent
+               'student_inroom_absent':student_inroom_absent,
+               'page' : 'index'
                }
 
     return render(request, 'index.html', context)
@@ -150,6 +151,12 @@ def savestudentabsent(request):
     if request.method == 'POST':
         student_inroom = request.POST.getlist('student_inroom')
         absent = request.POST.getlist('absent')
+        # รับข้อมูล ห้องที่สอน
+        room = request.POST.get('room')
+        # ค้นหาข้อมูลห้องที่รับมา จากฐานข้อมูลเพื่อให้ได้รายละเอียดมากขึ้น
+        room_select = Room.objects.get(pk=room)
+
+
         #ตรวจสอบว่ามีการบันทึกไว้หรือไว้ โดยตรวจสอบกับ promary key ข้องตารางถ้ามีให้ทำการ update
         #ในเงื่อนไขนี้จะต้องมีข้อมูลอยู่แล้ว เพราะได้มีการเพิ่ม (Insert) ข้อมุลไว้ก่อนหน้านี้
         for i in range(0, len(absent)):
@@ -171,10 +178,10 @@ def savestudentabsent(request):
                       studentAbsent.teacherinroom.teach_date,
                       studentAbsent.absent)
 
-                    sendMessage(message)
+                    sendMessage(message = message, classroom_line_token = room_select.line_access_token)
             else:
                 print("error : update")
-    context = {
+    context = { 'page' : 'index'
                }
 
     return render(request, 'save.html', context)
@@ -232,7 +239,8 @@ def report_index(request):
                 'stop_teach_time': stop_teach_time,
                 'show_absent': show_absent,
                 'data_male': data_male,
-                'data_fremale': data_fremale
+                'data_fremale': data_fremale,
+                'page': 'report'
                 }
     return render(request, 'report_index.html', context)
 
@@ -325,6 +333,14 @@ def report_table(request):
 
                 'room' : room , 'subject': subject, 'absent':absent,
                 'room_select': room_select, 'subject_select': subject_select,
-                'data_student_in_room' : data_student_in_room,'total_abs':total_abs
+                'data_student_in_room' : data_student_in_room,'total_abs':total_abs,
+                'page': 'report'
                 }
     return render(request, 'report_table.html', context)
+
+
+def report_student(request):
+    context = {
+        'page': 'report'
+    }
+    return render(request, 'report_student.html', context)

@@ -1,0 +1,158 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {% block title %} {% endblock %}
+
+    <!--===============================================================================================-->
+	<link rel="stylesheet" type="text/css" href="{% static 'login/fonts/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Bootstrap datepicker -->
+    <link href="{% static 'vendor/bootstrap-datepicker/css/bootstrap-datepicker.css' %}" rel="stylesheet">
+
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/simple-sidebar.css' %}" rel="stylesheet">
+
+    {% block script_header %}{% endblock %}
+
+
+
+</head>
+<body>
+
+
+<div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+      <div class="sidebar-heading">Student Monitor </div>
+      <div class="list-group list-group-flush">
+        <a href="{% url  'webs:index' %}" class="list-group-item list-group-item-action bg-light">Student</a>
+        {% if request.user.is_superuser %}
+         <a href="/admin/" class="list-group-item list-group-item-action bg-light">ข้อมุล</a>
+        {% endif %}
+        <a href="{% url 'webs:report_index' %}" class="list-group-item list-group-item-action bg-light">รายงานที่1</a>
+        <div class="list-group list-group-flush">
+            <a href="{% url  'webs:report_table' %}" class="list-group-item list-group-item-action bg-light">รายงานที่2</a>
+        </div>
+
+        <div class="list-group list-group-flush">
+            <a href="{% url  'webs:report_table' %}" class="list-group-item list-group-item-action bg-light">ข้อมูลโรงเรียน</a>
+        </div>
+
+        <div class="list-group list-group-flush">
+            <a href="{% url  'webs:report_table' %}" class="list-group-item list-group-item-action bg-light">ประวัติโรงเรียน</a>
+        </div>
+
+        <div class="list-group list-group-flush">
+            <a href="{% url  'webs:report_table' %}" class="list-group-item list-group-item-action bg-light">วิสัยทัศน์ พันธกิจ เป้าประสงค์</a>
+        </div>
+
+        <div  class="list-group list-group-flush">
+            <a href="{% url  'webs:report_table' %}" class="list-group-item list-group-item-action bg-light">บุคคลากรภายในโรงเรียน</a>
+        </div>
+      </div>
+
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+
+        <button class="navbar-brand btn btn-primary" id="menu-toggle" value="Show" >ซ่อน เมนู</button>
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent-4"
+            aria-controls="navbarSupportedContent-4" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent-4">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="#">
+                  {{request.user}}
+                  <span class="sr-only">(current)</span>
+                </a>
+              </li>
+
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink-4" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <i class="fa fa-user-o" aria-hidden="true"></i>  Profile </a>
+                <div class="dropdown-menu dropdown-menu-right dropdown-info" aria-labelledby="navbarDropdownMenuLink-4">
+                  <!--<a class="dropdown-item" href="#">My account</a>-->
+                  <a class="dropdown-item" href="{% url  'webs:logout_user' %}"><i class="fa fa-sign-out" aria-hidden="true"></i>Log out</a>
+                </div>
+              </li>
+            </ul>
+          </div>
+</nav>
+        <!--
+<nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+        <button class="btn btn-primary" id="menu-toggle" value="Show" >ซ่อน เมนู</button>
+
+        <span class="navbar-text white-text">
+            Navbar text with an inline element
+        </span>
+        <button class="n
+        avbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+
+      </nav>
+
+-->
+
+
+      <div class="container-fluid">
+           {% block content %}  {% endblock %}
+      </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap-datepicker/js/bootstrap-datepicker.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap-datepicker/locales/bootstrap-datepicker.th.min.js' %}"  charset="UTF-8"></script>
+
+  <script src="{% static 'vendor/chart.js/chart.js' %}"></script>
+  <script src="{% static 'vendor/chart.js/utils.js' %}"></script>
+  <!-- Menu Toggle Script -->
+  <script>
+    $("#menu-toggle").click(function(e) {
+      e.preventDefault();
+      $("#wrapper").toggleClass("toggled");
+      $("#menu-toggle").html('แสดง เมนู');
+      var self=$(this);
+        if(self.val()=="Show")     {
+         self.val("Hide");
+        }
+        else {
+         self.val("Show");
+        }
+
+
+    });
+  </script>
+
+    {% block script_body %} {% endblock %}
+</body>
+</html>

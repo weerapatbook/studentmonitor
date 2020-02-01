@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import index, savestudentabsent, report_index, report_table,login_user, logout_user
+from .views import index, savestudentabsent, report_index, report_table,login_user, logout_user, report_student
 
 app_name = 'webs'
 urlpatterns = [
@@ -27,5 +27,6 @@ urlpatterns = [
     path('login/', login_user, name='login_user'),
     path('logout/', logout_user, name='logout_user'),
 
+    path('report_student/', report_student, name='report_student')
 
 ]

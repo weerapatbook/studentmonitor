@@ -3,6 +3,19 @@ from django.contrib.auth.models import User
 from enum import Enum
 # Create your models here.
 
+
+class IntegerRangeField(models.IntegerField):
+    def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
+        self.min_value, self.max_value = min_value, max_value
+        models.IntegerField.__init__(self, verbose_name, name, **kwargs)
+    def formfield(self, **kwargs):
+        defaults = {'min_value': self.min_value, 'max_value':self.max_value}
+        defaults.update(kwargs)
+        return super(IntegerRangeField, self).formfield(**defaults)
+
+
+
+
 class Student(models.Model):
     '''
     เก็บข้อมูลรายชื่อนักเรียน
@@ -35,7 +48,9 @@ class Room (models.Model):
     '''
     name = models.CharField(max_length=200,blank=True, null=True)
     description = models.CharField(max_length=200,blank=True, null=True)
-
+    line_access_token = models.CharField(max_length=255, blank=True, null=True)
+    classroom = IntegerRangeField(min_value=1, max_value=6 , default=1, blank=True, null=True)
+    room = IntegerRangeField(min_value=1, max_value=6, default=1, blank=True, null=True)
     def __str__(self):
         return r"%s" %(self.name)
 
